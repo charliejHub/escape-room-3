@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>The Keeper’s Hidden Grid</title>
+  <style>
+    body {
+      background: #0a0a0a url('scroll_texture.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #f0e6d2;
+      font-family: 'Cinzel', serif;
+      text-align: center;
+      padding: 30px;
+    }
+    h1 {
+      font-size: 2.5em;
+      color: #c9b458;
+    }
+    .intro {
+      font-size: 1.1em;
+      margin: 20px auto 20px;
+      max-width: 700px;
+      background: rgba(0,0,0,0.7);
+      padding: 18px;
+      border-radius: 12px;
+    }
+    .grid-wrapper {
+      overflow-x: auto;
+      padding: 20px 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(24, 40px);
+      grid-gap: 6px;
+      justify-content: start;
+      min-width: max-content;
+      margin: 0 auto;
+    }
+    .cell {
+      width: 40px;
+      height: 50px;
+      font-size: 1.4em;
+      text-transform: uppercase;
+      text-align: center;
+      border: 2px solid #888;
+      border-radius: 5px;
+      background: #222;
+      color: #f0e6d2;
+    }
+    .space {
+      background: transparent;
+      border: none;
+    }
+    .correct {
+      background: #228822;
+      color: #fff;
+      border-color: #44ff44;
+    }
+    #finalMessage {
+      margin-top: 30px;
+      font-size: 1.3em;
+      color: #c9b458;
+      display: none;
+    }
+    #attempts {
+      margin-top: 15px;
+      font-size: 1em;
+      color: #ffcc66;
+    }
+  </style>
+</head>
+<body>
+  <h1>The Keeper’s Hidden Grid</h1>
+  <div class="intro">
+    Fill in the hidden letters to reveal the Keeper’s secret.<br/>
+    Each correct letter will glow green.<br/>
+    You have <strong>10 attempts</strong> — use them wisely, or the grid will reset!
+  </div>
+
+  <div id="attempts">Attempts remaining: <span id="remaining">10</span></div>
+
+  <div class="grid-wrapper">
+    <div class="grid" id="grid">
+      <!-- Grid cells will load here -->
+    </div>
+  </div>
+
+  <div id="finalMessage">
+    ✨ The Keeper whispers:<br/>
+    <strong>“Seekers, your next clue lies beneath the desk…”</strong>
+  </div>
+
+  <script>
+    const secretPhrase = "THE SEEKER HIDES IN THE SHADOW";
+    const gridContainer = document.getElementById('grid');
+    const remainingEl = document.getElementById('remaining');
+    const finalMessage = document.getElementById('finalMessage');
+    let attempts = 10;
+
+    // Build grid
+    secretPhrase.split('').forEach(char => {
+      if (char === ' ') {
+        const space = document.createElement('div');
+        space.className = 'space';
+        gridContainer.appendChild(space);
+      } else {
+        const cell = document.createElement('input');
+        cell.maxLength = 1;
+        cell.className = 'cell';
+        cell.dataset.answer = char;
+        cell.addEventListener('input', () => checkLetter(cell));
+        gridContainer.appendChild(cell);
+      }
+    });
+
+    function checkLetter(cell) {
+      const input = cell.value.toUpperCase();
+      const answer = cell.dataset.answer;
+
+      if (input === answer) {
+        cell.classList.add('correct');
+        cell.disabled = true;
+      } else {
+        cell.value = '';
+        attempts--;
+        remainingEl.textContent = attempts;
+        if (attempts <= 0) {
+          alert("The Keeper resets the grid... Try again!");
+          location.reload();
+        }
+      }
+      checkComplete();
+    }
+
+    function checkComplete() {
+      const allCells = document.querySelectorAll('.cell');
+      const allCorrect = Array.from(allCells).every(cell =>
+        cell.value.toUpperCase() === cell.dataset.answer
+      );
+      if (allCorrect) {
+        finalMessage.style.display = 'block';
+      }
+    }
+  </script>
+</body>
+</html>
